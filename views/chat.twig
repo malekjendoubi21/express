@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat en temps réel</title>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <h1>Chat en temps réel</h1>
+    <div id="messages">
+        {% for chat in chats %}
+            <p><strong>{{ chat.date|date("H:i:s") }}</strong>: {{ chat.message }}</p>
+        {% endfor %}
+    </div>
+    <input id="messageInput" type="text" placeholder="Tapez votre message" />
+    <button id="sendButton">Envoyer</button>
+
+    <script>
+        const socket = io();
+
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const messagesDiv = document.getElementById('messages');
+
+        // Envoi d'un message au serveur
+        sendButton.addEventListener('click', () => {
+            const message = messageInput.value;
+            socket.emit('chatMessage', message);
+            messageInput.value = '';
+        });
+
+        // Réception d'un message du serveur
+        socket.on('chatMessage', (data) => {
+            const p = document.createElement('p');
+            p.innerHTML = `<strong>${new Date(data.date).toLocaleTimeString()}</strong>: ${data.message}`;
+            messagesDiv.appendChild(p);
+        });
+    </script>
+</body>
+</html>
